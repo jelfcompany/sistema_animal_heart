@@ -9,34 +9,31 @@ try:
     
     if mi_conexion.is_connected():
         mensajero = mi_conexion.cursor()
-        
-        mensajero.execute("CREATE DATABASE IF NOT EXISTS animal_heart_db")
         mensajero.execute("USE animal_heart_db")
         
-        # El molde reparado
-        consulta_tabla = """
-        CREATE TABLE IF NOT EXISTS pacientes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(50),
-            especie VARCHAR(50),
-            edad INT,
-            peso FLOAT
-        )
-        """
-        mensajero.execute(consulta_tabla)
-        print("✅ Estructura de la clínica lista.")
-
-        # ¡EL PRIMER PACIENTE! Llenamos la ficha médica
+        print("\n--- 🐾 RECEPCIÓN DE ANIMAL HEART 🐾 ---")
+        
+        # 1. El programa te hace preguntas y guarda tus respuestas en variables
+        nombre_ingresado = input("Escribe el nombre del paciente: ")
+        especie_ingresada = input("¿Qué animal es? (Ej. Perro, Gato): ")
+        
+        # Usamos int() y float() para convertir el texto en números reales
+        edad_ingresada = int(input("¿Cuántos años tiene? (Solo números): "))
+        peso_ingresado = float(input("¿Cuánto pesa en kg? (Ej. 4.5): "))
+        
+        # 2. Preparamos la orden para MySQL
         consulta_insertar = "INSERT INTO pacientes (nombre, especie, edad, peso) VALUES (%s, %s, %s, %s)"
-        datos_paciente = ("Odi", "Perro", 3, 15.5) 
         
+        # 3. Empaquetamos TUS respuestas
+        datos_paciente = (nombre_ingresado, especie_ingresada, edad_ingresada, peso_ingresado) 
+        
+        # 4. Enviamos y firmamos
         mensajero.execute(consulta_insertar, datos_paciente)
-        
-        # FIRMAMOS LA HISTORIA CLÍNICA 
         mi_conexion.commit()
         
-        print("🎉 ¡Paciente registrado con éxito!")
-        print(f"El ID asignado a {datos_paciente[0]} es: {mensajero.lastrowid}")
+        print(f"\n🎉 ¡Excelente! {nombre_ingresado} ha sido registrado con éxito en la base de datos.")
 
 except mysql.connector.Error as error:
     print("Fallo en la Matrix. Error:", error)
+except ValueError:
+    print("⚠️ Error: Por favor, en la edad y el peso ingresa ÚNICAMENTE números, no letras.")
